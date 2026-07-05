@@ -22,6 +22,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Decode Debug Keystore
+        run: |
+          if [ -f debug.keystore.base64 ]; then
+            echo "Decoding debug keystore from base64..."
+            base64 -d debug.keystore.base64 > debug.keystore
+          else
+            echo "Warning: debug.keystore.base64 not found!"
+          fi
+
       - name: Heal and Regenerate Gradle Wrapper
         run: |
           echo "Regenerating and correcting Gradle wrapper binaries to prevent corruption..."
