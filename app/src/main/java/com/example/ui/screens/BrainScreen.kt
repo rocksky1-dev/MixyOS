@@ -79,15 +79,15 @@ fun BrainScreen(
                             imageVector = Icons.Default.Psychology,
                             contentDescription = "Brain Icon",
                             tint = CyberCyan,
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "MIXY LLM COGNITION",
                             color = Color.White,
-                            fontSize = 17.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp
+                            letterSpacing = 1.sp
                         )
                     }
                 },
@@ -102,16 +102,16 @@ fun BrainScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Glass Tab Row for sub-tabs (Neural Core & Brain Chat)
+            // Glass Tab Row for sub-tabs (Neural Core & Brain Chat) - Compact Design
             TabRow(
                 selectedTabIndex = activeSubTab,
                 containerColor = Color(0x11FFFFFF),
                 contentColor = CyberCyan,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(14.dp)),
+                    .padding(horizontal = 14.dp, vertical = 4.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(10.dp)),
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[activeSubTab]),
@@ -125,9 +125,9 @@ fun BrainScreen(
                     modifier = Modifier.testTag("subtab_core"),
                     text = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.DeveloperBoard, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Neural Core", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Icon(Icons.Default.DeveloperBoard, contentDescription = null, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Neural Core", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 )
@@ -137,9 +137,9 @@ fun BrainScreen(
                     modifier = Modifier.testTag("subtab_chat"),
                     text = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Brain Chat", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Brain Chat", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 )
@@ -179,14 +179,14 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 18.dp),
+            .padding(horizontal = 14.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             NeuralOrbSection(status = downloadState.status)
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
         item {
@@ -195,14 +195,14 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("nvidia_specs_card"),
-                cornerRadius = 20.dp,
+                cornerRadius = 14.dp,
                 borderColor = Color.White.copy(alpha = 0.15f),
                 backgroundColor = Color(0x1A090C15)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp)
+                        .padding(14.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -210,31 +210,31 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(32.dp)
                                 .clip(CircleShape)
                                 .background(CyberPurple.copy(alpha = 0.2f)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("🧠", fontSize = 20.sp)
+                            Text("🧠", fontSize = 16.sp)
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
                                 text = "Mixy OS Brain",
                                 color = Color.White,
-                                fontSize = 16.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "NVIDIA-powered Neural Subsystem",
                                 color = Color.Gray,
-                                fontSize = 11.sp
+                                fontSize = 10.sp
                             )
                         }
                     }
 
                     Divider(
-                        modifier = Modifier.padding(vertical = 12.dp),
+                        modifier = Modifier.padding(vertical = 10.dp),
                         color = Color.White.copy(alpha = 0.08f)
                     )
 
@@ -249,7 +249,7 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
         item {
@@ -258,32 +258,32 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("nvidia_key_config_card"),
-                cornerRadius = 20.dp,
+                cornerRadius = 14.dp,
                 borderColor = CyberCyan.copy(alpha = 0.2f),
                 backgroundColor = Color(0x1F050914)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp)
+                        .padding(14.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.VpnKey, contentDescription = null, tint = CyberCyan, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(Icons.Default.VpnKey, contentDescription = null, tint = CyberCyan, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "NVIDIA API Key",
                             color = Color.White,
-                            fontSize = 15.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     OutlinedTextField(
                         value = keyInput,
                         onValueChange = { keyInput = it },
-                        label = { Text("NVIDIA API Key", color = Color.Gray) },
+                        label = { Text("NVIDIA API Key", color = Color.Gray, fontSize = 11.sp) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("nvidia_key_input"),
@@ -293,7 +293,8 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                                 Icon(
                                     imageVector = if (keyVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                     contentDescription = "Toggle visibility",
-                                    tint = Color.Gray
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         },
@@ -307,17 +308,17 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     if (isConnectingNvidia) {
                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = CyberCyan, modifier = Modifier.size(28.dp))
+                            CircularProgressIndicator(color = CyberCyan, modifier = Modifier.size(24.dp))
                         }
                     } else {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Button(
                                     onClick = {
@@ -330,13 +331,13 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                                         }
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.08f)),
-                                    shape = RoundedCornerShape(10.dp),
+                                    shape = RoundedCornerShape(8.dp),
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(44.dp)
+                                        .height(38.dp)
                                         .testTag("test_connection_btn")
                                 ) {
-                                    Text("Test", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    Text("Test", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
 
                                 Button(
@@ -345,13 +346,13 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                                         Toast.makeText(context, "API Key Saved Securely", Toast.LENGTH_SHORT).show()
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.12f)),
-                                    shape = RoundedCornerShape(10.dp),
+                                    shape = RoundedCornerShape(8.dp),
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(44.dp)
+                                        .height(38.dp)
                                         .testTag("save_key_btn")
                                 ) {
-                                    Text("Save Key", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    Text("Save Key", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                             }
 
@@ -371,21 +372,21 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = CyberCyan),
-                                shape = RoundedCornerShape(10.dp),
+                                shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(44.dp)
+                                    .height(38.dp)
                                     .testTag("connect_btn")
                             ) {
-                                Icon(Icons.Default.CloudQueue, contentDescription = null, tint = SpaceDark, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Connect Brain", color = SpaceDark, fontWeight = FontWeight.Bold)
+                                Icon(Icons.Default.CloudQueue, contentDescription = null, tint = SpaceDark, modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Connect Brain", color = SpaceDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                             }
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
         item {
@@ -430,14 +431,14 @@ fun AgentPermissionsCenterCard() {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("agent_permissions_card"),
-        cornerRadius = 20.dp,
+        cornerRadius = 14.dp,
         borderColor = CyberCyan.copy(alpha = 0.3f),
         backgroundColor = Color(0x1F050914)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(14.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -447,25 +448,25 @@ fun AgentPermissionsCenterCard() {
                     imageVector = Icons.Default.Security,
                     contentDescription = null,
                     tint = CyberCyan,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(16.dp)
                 )
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Neural OS Agent Permission Center",
                     color = Color.White,
-                    fontSize = 15.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Grant these high-level permissions to authorize the autonomous agent loop to dial contacts, track your locale context, trigger alarms, record logs, and control device features natively.",
                 color = Color.Gray,
-                fontSize = 11.sp,
-                lineHeight = 15.sp
+                fontSize = 10.sp,
+                lineHeight = 14.sp
             )
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             PermissionIndicatorRow(
                 label = "Camera Access",
@@ -503,31 +504,31 @@ fun AgentPermissionsCenterCard() {
                 icon = Icons.Default.CalendarMonth
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Button(
                 onClick = {
                     launcher.launch(listPermissions.toTypedArray())
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = CyberCyan),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(44.dp)
+                    .height(38.dp)
                     .testTag("grant_all_permissions_btn")
             ) {
                 Icon(
                     imageVector = Icons.Default.Security,
                     contentDescription = null,
                     tint = SpaceDark,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(14.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "GRANT ALL AGENT POWERS",
                     color = SpaceDark,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     letterSpacing = 0.5.sp
                 )
             }
@@ -591,70 +592,70 @@ fun LocalVoiceEngineDownloaderCard(viewModel: MixyViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("brain_downloader_card"),
-        cornerRadius = 20.dp,
+        cornerRadius = 14.dp,
         borderColor = Color.White.copy(alpha = 0.12f),
         backgroundColor = Color(0x1F050914)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.SettingsVoice, contentDescription = null, tint = CyberPurple, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Kokoro Offline TTS", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Icon(Icons.Default.SettingsVoice, contentDescription = null, tint = CyberPurple, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Kokoro Offline TTS", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             when (downloadState.status) {
                 "Not Installed" -> {
                     Text(
                         text = "Download Kokoro TTS (Offline Male Voice) to speak replies direct from this device with ultra-low latency.",
                         color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         textAlign = TextAlign.Start,
-                        lineHeight = 16.sp
+                        lineHeight = 15.sp
                     )
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = { viewModel.voiceEngineDownloader.startDownload() },
                         colors = ButtonDefaults.buttonColors(containerColor = CyberPurple),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(44.dp)
+                            .height(38.dp)
                             .testTag("download_engine_button"),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        Icon(Icons.Default.Download, contentDescription = "Download")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Download Engine (~350MB)", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 13.sp)
+                        Icon(Icons.Default.Download, contentDescription = "Download", modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Download Engine (~350MB)", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 12.sp)
                     }
                 }
                 "Downloading" -> {
                     Text(
                         text = "Downloading Voice Engine Assets: ${downloadState.currentFile}",
                         color = Color.White,
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     LinearProgressIndicator(
                         progress = downloadState.progress,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(2.dp)),
                         color = CyberCyan,
                         trackColor = Color.White.copy(alpha = 0.1f)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -663,77 +664,77 @@ fun LocalVoiceEngineDownloaderCard(viewModel: MixyViewModel) {
                         Text(
                             text = "${String.format(Locale.US, "%.1f", downloadState.progress * 100)}%",
                             color = CyberCyan,
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "${formatBytes(downloadState.downloadedBytes)} / ${formatBytes(downloadState.totalBytes)}",
                             color = Color.Gray,
-                            fontSize = 11.sp
+                            fontSize = 10.sp
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         FilledTonalButton(
                             onClick = { viewModel.voiceEngineDownloader.pauseDownload() },
                             colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color.Yellow.copy(alpha = 0.1f), contentColor = Color.Yellow),
-                            modifier = Modifier.weight(1f).height(38.dp),
-                            shape = RoundedCornerShape(8.dp)
+                            modifier = Modifier.weight(1f).height(36.dp),
+                            shape = RoundedCornerShape(6.dp)
                         ) {
-                            Text("Pause", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("Pause", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
 
                         FilledTonalButton(
                             onClick = { viewModel.voiceEngineDownloader.cancelDownload() },
                             colors = ButtonDefaults.filledTonalButtonColors(containerColor = CyberPink.copy(alpha = 0.1f), contentColor = CyberPink),
-                            modifier = Modifier.weight(1f).height(38.dp),
-                            shape = RoundedCornerShape(8.dp)
+                            modifier = Modifier.weight(1f).height(36.dp),
+                            shape = RoundedCornerShape(6.dp)
                         ) {
-                            Text("Cancel", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("Cancel", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
                 "Paused" -> {
-                    Text("Download Paused (${String.format(Locale.US, "%.1f", downloadState.progress * 100)}%)", color = Color.Yellow, fontSize = 13.sp)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Download Paused (${String.format(Locale.US, "%.1f", downloadState.progress * 100)}%)", color = Color.Yellow, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             onClick = { viewModel.voiceEngineDownloader.startDownload() },
                             colors = ButtonDefaults.buttonColors(containerColor = CyberCyan),
-                            modifier = Modifier.weight(1f).height(38.dp),
-                            shape = RoundedCornerShape(8.dp)
+                            modifier = Modifier.weight(1f).height(36.dp),
+                            shape = RoundedCornerShape(6.dp)
                         ) {
-                            Text("Resume", color = SpaceDark, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("Resume", color = SpaceDark, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                         Button(
                             onClick = { viewModel.voiceEngineDownloader.cancelDownload() },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
-                            modifier = Modifier.weight(1f).height(38.dp),
-                            shape = RoundedCornerShape(8.dp)
+                            modifier = Modifier.weight(1f).height(36.dp),
+                            shape = RoundedCornerShape(6.dp)
                         ) {
-                            Text("Cancel", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("Cancel", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
                 "Initializing" -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = CyberPink, strokeWidth = 2.dp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Initializing offline model core...", color = CyberPink, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        CircularProgressIndicator(modifier = Modifier.size(14.dp), color = CyberPink, strokeWidth = 1.5.dp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Initializing offline model core...", color = CyberPink, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 "Ready" -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = CyberCyan, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Local Voice Synthesis Offline Engine Ready", color = CyberCyan, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = CyberCyan, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Local Voice Synthesis Offline Engine Ready", color = CyberCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
                         onClick = {
@@ -746,12 +747,12 @@ fun LocalVoiceEngineDownloaderCard(viewModel: MixyViewModel) {
                         },
                         enabled = !isSynthesizing,
                         colors = ButtonDefaults.buttonColors(containerColor = CyberCyan),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth().height(42.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().height(38.dp)
                     ) {
-                        Icon(Icons.Default.VolumeUp, contentDescription = null, tint = SpaceDark, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (isSynthesizing) "Synthesizing Local Voice..." else "Synthesize Speech Test", color = SpaceDark, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.VolumeUp, contentDescription = null, tint = SpaceDark, modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(if (isSynthesizing) "Synthesizing Local Voice..." else "Synthesize Speech Test", color = SpaceDark, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
                 }
             }
@@ -811,7 +812,7 @@ fun BrainChatTab(viewModel: MixyViewModel) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         if (llmMessages.isEmpty()) {
-            // Ambient Empty State
+            // Ambient Empty State - Compact Design
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -820,23 +821,23 @@ fun BrainChatTab(viewModel: MixyViewModel) {
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Text("🧠", fontSize = 56.sp)
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Text("🧠", fontSize = 42.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Mixy OS Neural Core",
                         color = Color.White,
-                        fontSize = 18.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Talk with google/diffusiongemma-26b-a4b-it powered by NVIDIA's local cloud infrastructure. Mixy will answer in a local male offline synthesizer voice.",
                         color = Color.Gray,
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         textAlign = TextAlign.Center,
-                        lineHeight = 16.sp
+                        lineHeight = 15.sp
                     )
                 }
             }
@@ -882,63 +883,28 @@ fun BrainChatTab(viewModel: MixyViewModel) {
             }
         }
 
-        // Selected Media Previews Panel
+        // Selected Media Previews Panel (Sleek Compact Size)
         if (selectedImages.isNotEmpty() || selectedFileNames.isNotEmpty()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White.copy(alpha = 0.05f))
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 selectedImages.forEachIndexed { index, bitmap ->
-                    Box(modifier = Modifier.size(54.dp)) {
+                    Box(modifier = Modifier.size(40.dp)) {
                         Image(
                             bitmap = bitmap.asImageBitmap(),
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .clip(RoundedCornerShape(8.dp)),
+                                .clip(RoundedCornerShape(6.dp)),
                             contentScale = ContentScale.Crop
                         )
                         IconButton(
                             onClick = { selectedImages.removeAt(index) },
-                            modifier = Modifier
-                                .size(18.dp)
-                                .align(Alignment.TopEnd)
-                                .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp))
-                        }
-                    }
-                }
-
-                selectedFileNames.forEachIndexed { index, name ->
-                    Box(
-                        modifier = Modifier
-                            .height(54.dp)
-                            .widthIn(max = 120.dp)
-                            .background(CyberPurple.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                            .border(1.dp, CyberPurple.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                            .padding(6.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.AttachFile, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = name,
-                                color = Color.White,
-                                fontSize = 10.sp,
-                                maxLines = 1
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                selectedFileNames.removeAt(index)
-                                selectedFileContents.removeAt(index)
-                            },
                             modifier = Modifier
                                 .size(16.dp)
                                 .align(Alignment.TopEnd)
@@ -948,36 +914,80 @@ fun BrainChatTab(viewModel: MixyViewModel) {
                         }
                     }
                 }
+
+                selectedFileNames.forEachIndexed { index, name ->
+                    Box(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .widthIn(max = 100.dp)
+                            .background(CyberPurple.copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                            .border(1.dp, CyberPurple.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.AttachFile, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = name,
+                                color = Color.White,
+                                fontSize = 9.sp,
+                                maxLines = 1
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                selectedFileNames.removeAt(index)
+                                selectedFileContents.removeAt(index)
+                            },
+                            modifier = Modifier
+                                .size(14.dp)
+                                .align(Alignment.TopEnd)
+                                .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = null, tint = Color.White, modifier = Modifier.size(7.dp))
+                        }
+                    }
+                }
             }
         }
 
-        // Bottom Input Toolbar
+        // Bottom Input Toolbar (Compact Design)
         GlassCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
-            cornerRadius = 16.dp,
+                .padding(6.dp),
+            cornerRadius = 12.dp,
             borderColor = Color.White.copy(alpha = 0.12f),
             backgroundColor = Color(0x22050914)
         ) {
-            Column(modifier = Modifier.padding(4.dp)) {
+            Column(modifier = Modifier.padding(2.dp)) {
                 // Media Toolbar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        IconButton(onClick = { galleryLauncher.launch("image/*") }) {
-                            Icon(Icons.Default.Photo, contentDescription = "Gallery", tint = CyberCyan)
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        IconButton(
+                            onClick = { galleryLauncher.launch("image/*") },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Default.Photo, contentDescription = "Gallery", tint = CyberCyan, modifier = Modifier.size(16.dp))
                         }
-                        IconButton(onClick = { cameraLauncher.launch(null) }) {
-                            Icon(Icons.Default.PhotoCamera, contentDescription = "Camera", tint = CyberCyan)
+                        IconButton(
+                            onClick = { cameraLauncher.launch(null) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Default.PhotoCamera, contentDescription = "Camera", tint = CyberCyan, modifier = Modifier.size(16.dp))
                         }
-                        IconButton(onClick = { fileLauncher.launch("*/*") }) {
-                            Icon(Icons.Default.AttachFile, contentDescription = "Attach File", tint = CyberCyan)
+                        IconButton(
+                            onClick = { fileLauncher.launch("*/*") },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Default.AttachFile, contentDescription = "Attach File", tint = CyberCyan, modifier = Modifier.size(16.dp))
                         }
                     }
 
@@ -990,12 +1000,14 @@ fun BrainChatTab(viewModel: MixyViewModel) {
                             } else {
                                 viewModel.startListening()
                             }
-                        }
+                        },
+                        modifier = Modifier.size(32.dp)
                     ) {
                         Icon(
                             imageVector = if (isListening) Icons.Default.MicOff else Icons.Default.Mic,
                             contentDescription = "Voice Dictation",
-                            tint = voiceTint
+                            tint = voiceTint,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
@@ -1032,13 +1044,13 @@ fun BrainChatTab(viewModel: MixyViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 6.dp),
+                        .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
                         value = inputText,
                         onValueChange = { inputText = it },
-                        placeholder = { Text("Command Mixy OS Brain...", color = Color.Gray, fontSize = 14.sp) },
+                        placeholder = { Text("Command Mixy OS Brain...", color = Color.Gray, fontSize = 12.sp) },
                         modifier = Modifier
                             .weight(1f)
                             .testTag("mind_chat_input"),
@@ -1086,9 +1098,9 @@ fun BrainChatTab(viewModel: MixyViewModel) {
                         modifier = Modifier
                             .padding(start = 4.dp)
                             .background(CyberCyan, CircleShape)
-                            .size(38.dp)
+                            .size(32.dp)
                     ) {
-                        Icon(Icons.Default.Send, contentDescription = "Send", tint = SpaceDark, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Send, contentDescription = "Send", tint = SpaceDark, modifier = Modifier.size(14.dp))
                     }
                 }
             }
@@ -1337,7 +1349,7 @@ fun NeuralOrbSection(status: String) {
 
     Box(
         modifier = Modifier
-            .size(130.dp)
+            .size(90.dp)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
@@ -1355,21 +1367,21 @@ fun NeuralOrbSection(status: String) {
     ) {
         Box(
             modifier = Modifier
-                .size(76.dp)
+                .size(52.dp)
                 .clip(CircleShape)
                 .background(
                     Brush.linearGradient(
                         colors = listOf(glowColor, glowColor.copy(alpha = 0.3f))
                     )
                 )
-                .border(2.dp, Color.White.copy(alpha = 0.4f), CircleShape),
+                .border(1.5.dp, Color.White.copy(alpha = 0.4f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Psychology,
                 contentDescription = null,
                 tint = SpaceDark,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
     }

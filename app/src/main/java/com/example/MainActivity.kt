@@ -59,18 +59,18 @@ fun MainAppShell() {
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         bottomBar = {
-            // High-fidelity custom glassmorphism bottom navigation
+            // High-fidelity custom glassmorphism bottom navigation (Compact Design)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(horizontal = 40.dp, vertical = 10.dp) // narrower width for 2 items
+                    .padding(horizontal = 24.dp, vertical = 6.dp) // narrower width for 2 items, fits compact mobile
             ) {
                 GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(72.dp),
-                    cornerRadius = 24.dp,
+                        .height(58.dp),
+                    cornerRadius = 16.dp,
                     borderColor = Color.White.copy(alpha = 0.15f),
                     backgroundColor = Color(0x1F0A0E1A) // Semi-transparent cosmic slate
                 ) {
@@ -140,22 +140,22 @@ fun TabNavItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(10.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .padding(horizontal = 10.dp, vertical = 4.dp)
             .testTag(tag)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = label,
             tint = if (selected) activeColor else inactiveColor,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(18.dp)
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
             color = if (selected) Color.White else inactiveColor,
-            fontSize = 10.sp,
+            fontSize = 9.sp,
             fontWeight = if (selected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal
         )
     }

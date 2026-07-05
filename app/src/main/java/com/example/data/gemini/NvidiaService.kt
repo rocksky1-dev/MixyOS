@@ -12,7 +12,29 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.util.Locale
 import java.util.concurrent.TimeUnit
+
+// --- Structured Action Schema ---
+data class MixyAction(
+    val action: String, // OPEN_APP, MAKE_CALL, SEND_SMS, SET_ALARM, SET_TIMER, FLASHLIGHT, etc.
+    val appName: String? = null,
+    val phoneNumber: String? = null,
+    val contactName: String? = null,
+    val message: String? = null,
+    val time: String? = null,
+    val label: String? = null,
+    val seconds: Int? = null,
+    val state: String? = null, // ON, OFF, TOGGLE
+    val level: Int? = null, // 0 to 100
+    val query: String? = null,
+    val subAction: String? = null, // COPY, READ, SEARCH, DELETE_DUPLICATES, COMPRESS
+    val text: String? = null,
+    val settingType: String? = null, // WIFI, BLUETOOTH, DATA, HOTSPOT, NFC, DISPLAY, SETTINGS
+    val gestureType: String? = null, // TAP, SCROLL, TYPE, READ_SCREEN
+    val target: String? = null,
+    val reply: String? = null // AI pre-filled operational message
+)
 
 object NvidiaService {
     private const val TAG = "NvidiaService"
@@ -28,6 +50,157 @@ object NvidiaService {
         val outputStream = ByteArrayOutputStream()
         compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
         return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP)
+    }
+
+    /**
+     * Highly robust offline parser that translates natural commands into system actions.
+     * Works instantly without API keys or active internet connections.
+     */
+    fun localParseCommand(query: String): MixyAction {
+        val clean = query.trim().lowercase(Locale.getDefault())
+        
+        return when {
+            // 1. Flashlight Commands
+            clean.contains("flashlight on") || clean.contains("turn on flashlight") || clean.contains("torch on") || clean.contains("turn on torch") || clean.contains("enable torch") -> {
+                MixyAction(action = "FLASHLIGHT", state = "ON", reply = "Activating device flashlight lens.")
+            }
+            clean.contains("flashlight off") || clean.contains("turn off flashlight") || clean.contains("torch off") || clean.contains("turn off torch") || clean.contains("disable torch") -> {
+                MixyAction(action = "FLASHLIGHT", state = "OFF", reply = "Deactivating device flashlight lens.")
+            }
+            
+            // 2. Camera Commands
+            clean.contains("camera") || clean.contains("take a picture") || clean.contains("take photo") || clean.contains("capture image") -> {
+                MixyAction(action = "LAUNCH_CAMERA", reply = "Initializing camera sensor.")
+            }
+            
+            // 3. Gallery Commands
+            clean.contains("gallery") || clean.contains("photos") || clean.contains("show photos") || clean.contains("show my photos") -> {
+                MixyAction(action = "OPEN_GALLERY", reply = "Opening photo gallery directory.")
+            }
+            
+            // 4. Volume Commands
+            clean.contains("volume") || clean.contains("mute") || clean.contains("silent") -> {
+                val level = extractNumber(clean) ?: 50
+                val replyText = if (clean.contains("mute") || clean.contains("silent") || level == 0) "Muting media volume." else "Setting media volume levels to $level%."
+                MixyAction(action = "SET_VOLUME", level = if (clean.contains("mute") || clean.contains("silent")) 0 else level, reply = replyText)
+            }
+            
+            // 5. Brightness Commands
+            clean.contains("brightness") || clean.contains("screen bright") || clean.contains("screen dim") -> {
+                val level = extractNumber(clean) ?: 40
+                MixyAction(action = "SET_BRIGHTNESS", level = level, reply = "Configuring display brightness level to $level%.")
+            }
+            
+            // 6. Settings and Wireless Commands
+            clean.contains("bluetooth settings") || (clean.contains("bluetooth") && clean.contains("settings")) -> {
+                MixyAction(action = "SYSTEM_SETTING", settingType = "BLUETOOTH", reply = "Loading Bluetooth control deck.")
+            }
+            clean.contains("wifi settings") || (clean.contains("wifi") && clean.contains("settings")) || clean.contains("wi-fi") -> {
+                MixyAction(action = "SYSTEM_SETTING", settingType = "WIFI", reply = "Loading WiFi configuration panel.")
+            }
+            clean.contains("data settings") || clean.contains("cellular settings") -> {
+                MixyAction(action = "SYSTEM_SETTING", settingType = "DATA", reply = "Loading mobile data settings.")
+            }
+            clean.contains("display settings") || clean.contains("screen settings") -> {
+                MixyAction(action = "SYSTEM_SETTING", settingType = "DISPLAY", reply = "Loading display control settings.")
+            }
+            clean.contains("setting") || clean.contains("settings") -> {
+                MixyAction(action = "SYSTEM_SETTING", settingType = "SETTINGS", reply = "Opening system Settings dashboard.")
+            }
+            
+            // 7. Timer Commands
+            clean.contains("timer") || clean.contains("stopwatch") -> {
+                val mins = extractNumber(clean) ?: 5
+                val seconds = mins * 60
+                MixyAction(action = "SET_TIMER", seconds = seconds, label = "Mixy Timer", reply = "Launching system timer for $mins minutes.")
+            }
+            
+            // 8. Alarm Commands
+            clean.contains("alarm") || clean.contains("wake me up") -> {
+                val timeString = extractTime(clean) ?: "06:00"
+                MixyAction(action = "SET_ALARM", time = timeString, label = "Mixy Alarm", reply = "Configuring alarm for $timeString on your system clock.")
+            }
+            
+            // 9. Call / Dial Commands
+            clean.startsWith("call ") || clean.contains("dial ") -> {
+                val rawName = query.substringAfter("call ", "").substringAfter("dial ", "").trim()
+                val phoneNum = extractPhoneNumber(rawName)
+                val contactName = if (phoneNum != null) null else rawName.split(" ").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "Contact"
+                MixyAction(action = "MAKE_CALL", phoneNumber = phoneNum, contactName = contactName, reply = "Initiating dialer sequence for ${contactName ?: phoneNum}.")
+            }
+            
+            // 10. SMS / Messaging Commands
+            clean.startsWith("send message") || clean.startsWith("text ") || clean.contains("message to ") -> {
+                val rawName = query.substringAfter("message to ", "").substringAfter("text ", "").trim()
+                val contactName = rawName.split(" ").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "Contact"
+                val messageText = query.substringAfter("saying ", "").substringAfter("text ", "").substringAfter(contactName, "").trim()
+                MixyAction(action = "SEND_SMS", contactName = contactName, message = messageText.ifEmpty { "Hello!" }, reply = "Drafting SMS message.")
+            }
+            
+            // 11. Maps and Navigation Commands
+            clean.contains("map") || clean.contains("navigate") || clean.contains("location") || clean.contains("where is") || clean.contains("directions to") -> {
+                val destination = query.substringAfter("navigate to ", "").substringAfter("where is ", "").substringAfter("directions to ", "").trim()
+                val mapQuery = if (destination.isEmpty() || destination == query) "current location" else destination
+                MixyAction(action = "OPEN_MAPS", query = mapQuery, reply = "Plotting trajectory on map to $mapQuery.")
+            }
+            
+            // 12. Open App Commands
+            clean.startsWith("open ") || clean.startsWith("launch ") -> {
+                val app = query.substringAfter("open ", "").substringAfter("launch ", "").trim()
+                MixyAction(action = "OPEN_APP", appName = app, reply = "Launching system application: $app.")
+            }
+            
+            // 13. File action Commands
+            clean.contains("file") || clean.contains("files") || clean.contains("compress") || clean.contains("duplicates") -> {
+                MixyAction(action = "FILE_ACTION", subAction = "SEARCH", reply = "Accessing standard file manager directory indices.")
+            }
+            
+            // 14. Notification summary Commands
+            clean.contains("notification") || clean.contains("notifications") || clean.contains("unread") -> {
+                MixyAction(action = "NOTIFICATION_SUMMARY", reply = "Summarizing device notifications.")
+            }
+            
+            // 15. Automations Commands
+            clean.contains("automation") || clean.contains("automations") || clean.contains("rules") -> {
+                MixyAction(action = "CHAT", reply = "Navigating to Automation deck. You can configure automatic triggers based on Time, Battery, or Location.")
+            }
+            
+            // Default Chat Action
+            else -> {
+                MixyAction(action = "CHAT", reply = "Cognitive synthesis core operational. How may I assist you?")
+            }
+        }
+    }
+
+    private fun extractNumber(text: String): Int? {
+        val numbers = Regex("\\d+").find(text)
+        return numbers?.value?.toIntOrNull()
+    }
+
+    private fun extractTime(text: String): String? {
+        val timePattern = Regex("(\\d{1,2}):(\\d{2})")
+        val match = timePattern.find(text)
+        if (match != null) {
+            val hour = match.groupValues[1].toInt()
+            val min = match.groupValues[2].toInt()
+            return String.format(Locale.US, "%02d:%02d", hour, min)
+        }
+        val singleDigit = Regex("\\d+").find(text)
+        if (singleDigit != null) {
+            val hour = singleDigit.value.toInt()
+            if (hour in 0..23) {
+                return String.format(Locale.US, "%02d:00", hour)
+            }
+        }
+        return null
+    }
+
+    private fun extractPhoneNumber(text: String): String? {
+        val cleanText = text.replace(Regex("[^0-9+]"), "")
+        if (cleanText.length >= 5) {
+            return cleanText
+        }
+        return null
     }
 
     suspend fun generateContent(
@@ -63,7 +236,6 @@ object NvidiaService {
             for (msg in history) {
                 val histMsg = JSONObject()
                 histMsg.put("role", if (msg.isUser) "user" else "assistant")
-                // Stripping system action responses for cleaner history
                 val cleanedText = msg.text
                 histMsg.put("content", cleanedText)
                 messages.put(histMsg)

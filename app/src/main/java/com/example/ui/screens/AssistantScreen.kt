@@ -113,14 +113,14 @@ fun AssistantScreen(
                         Text(
                             text = "Mixy OS",
                             color = Color.White,
-                            fontSize = 26.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif
                         )
                         Text(
                             text = "AI Assistant",
                             color = CyberCyan,
-                            fontSize = 12.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -130,20 +130,20 @@ fun AssistantScreen(
                     FilterChip(
                         selected = highThinking,
                         onClick = { viewModel.toggleHighThinking(!highThinking) },
-                        label = { Text("High Thinking", color = Color.White, fontSize = 11.sp) },
+                        label = { Text("High Thinking", color = Color.White, fontSize = 9.sp) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Psychology,
                                 contentDescription = null,
                                 tint = if (highThinking) CyberPink else Color.Gray,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = CyberPurple.copy(alpha = 0.3f),
                             selectedLabelColor = Color.White
                         ),
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = 4.dp)
                     )
 
                     IconButton(
@@ -153,7 +153,8 @@ fun AssistantScreen(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "System log configuration",
-                            tint = Color.White
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
@@ -164,16 +165,16 @@ fun AssistantScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Central Pulsing Avatar Reactor
+            // Central Pulsing Avatar Reactor (Sleek Compact Size)
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(110.dp)
                     .clickable {
                         if (isListening) viewModel.stopListening() else viewModel.startListening()
                     }
@@ -181,10 +182,10 @@ fun AssistantScreen(
                 // Outer breathing halo ring
                 Box(
                     modifier = Modifier
-                        .size(170.dp)
+                        .size(95.dp)
                         .scale(if (isListening || isSpeaking) pulseScale else 1.0f)
                         .border(
-                            width = 2.dp,
+                            width = 1.5.dp,
                             brush = Brush.radialGradient(
                                 colors = listOf(CyberCyan, CyberPurple, Color.Transparent)
                             ),
@@ -195,7 +196,7 @@ fun AssistantScreen(
                 // Inner soft glowing ring
                 Box(
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(80.dp)
                         .scale(if (isListening || isSpeaking) pulseScale * 0.95f else 1.0f)
                         .border(
                             width = 1.dp,
@@ -211,14 +212,14 @@ fun AssistantScreen(
                         bitmap = logoBitmap,
                         contentDescription = "Mixy Reactor Core",
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(64.dp)
                             .clip(CircleShape)
                     )
                 } else {
                     // Fallback gorgeous geometric logo drawn on canvas
                     Box(
                         modifier = Modifier
-                            .size(110.dp)
+                            .size(60.dp)
                             .clip(CircleShape)
                             .background(
                                 Brush.linearGradient(
@@ -231,7 +232,7 @@ fun AssistantScreen(
                             imageVector = Icons.Default.Memory,
                             contentDescription = "Core unit",
                             tint = Color.White,
-                            modifier = Modifier.size(50.dp)
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
@@ -240,13 +241,13 @@ fun AssistantScreen(
                 if (isProcessing) {
                     CircularProgressIndicator(
                         color = CyberPink,
-                        strokeWidth = 3.dp,
-                        modifier = Modifier.size(135.dp)
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(72.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // User Name and Greeting Section
             Row(
@@ -256,13 +257,13 @@ fun AssistantScreen(
                 Text(
                     text = "$greeting, ",
                     color = Color.White,
-                    fontSize = 24.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = userName,
                     color = CyberCyan,
-                    fontSize = 24.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Icon(
@@ -270,43 +271,43 @@ fun AssistantScreen(
                     contentDescription = "Rename user profile",
                     tint = CyberCyan.copy(alpha = 0.5f),
                     modifier = Modifier
-                        .padding(start = 6.dp)
-                        .size(16.dp)
+                        .padding(start = 4.dp)
+                        .size(12.dp)
                 )
             }
 
             Text(
                 text = if (isListening) "I am listening... speak now." else "How can I help you today?",
                 color = Color.Gray,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(top = 4.dp)
+                fontSize = 11.sp,
+                modifier = Modifier.padding(top = 2.dp)
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Text Terminal / Command Search Input
             GlassCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
+                    .height(48.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 14.dp),
+                        .padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.AutoAwesome,
                         contentDescription = "Command spark icon",
                         tint = CyberCyan,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(16.dp)
                     )
 
                     TextField(
                         value = textInput,
                         onValueChange = { textInput = it },
-                        placeholder = { Text("Type a command or ask anything...", color = Color.Gray, fontSize = 14.sp) },
+                        placeholder = { Text("Type a command or ask anything...", color = Color.Gray, fontSize = 12.sp) },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
@@ -341,13 +342,13 @@ fun AssistantScreen(
                             imageVector = Icons.Default.Mic,
                             contentDescription = "Voice mode",
                             tint = if (isListening) CyberPink else Color.Gray,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Recent Commands List Header
             Row(
@@ -358,18 +359,18 @@ fun AssistantScreen(
                 Text(
                     text = "Recent Commands",
                     color = Color.White,
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "Purge Cache",
                     color = CyberPink,
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     modifier = Modifier.clickable { viewModel.clearChatHistory() }
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Interactive Recents Command List
             if (chatMessages.isEmpty()) {
@@ -504,13 +505,13 @@ fun CommandItemCard(
     GlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
+            .height(54.dp)
             .clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -518,10 +519,10 @@ fun CommandItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Colored icon container
+                // Colored icon container (Compact)
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(32.dp)
                         .background(iconTint.copy(alpha = 0.12f), CircleShape)
                         .border(1.dp, iconTint.copy(alpha = 0.25f), CircleShape),
                     contentAlignment = Alignment.Center
@@ -530,23 +531,23 @@ fun CommandItemCard(
                         imageVector = icon,
                         contentDescription = null,
                         tint = iconTint,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(10.dp))
 
                 Column {
                     Text(
                         text = title,
                         color = Color.White,
-                        fontSize = 15.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = subtitle,
                         color = Color.Gray,
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         maxLines = 1
                     )
                 }
@@ -556,7 +557,7 @@ fun CommandItemCard(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Execute again",
                 tint = Color.Gray.copy(alpha = 0.7f),
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(18.dp)
             )
         }
     }
