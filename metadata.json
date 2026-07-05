@@ -1,0 +1,6 @@
+{
+  "name": "Mixy OS",
+  "description": "Premium JARVIS-inspired AI Phone Control Assistant with glassmorphic dashboards, deep device automations, and intelligent voice interaction.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
