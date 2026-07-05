@@ -21,10 +21,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
 
-      - name: Grant Execute Permission to gradlew
-        run: chmod +x gradlew
+      - name: Heal and Regenerate Gradle Wrapper
+        run: |
+          echo "Regenerating and correcting Gradle wrapper binaries to prevent corruption..."
+          gradle wrapper --gradle-version 9.3.1
+          chmod +x gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
@@ -35,3 +40,4 @@ jobs:
           name: MixyOS-Debug-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
+

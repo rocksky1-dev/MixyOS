@@ -1,0 +1,6 @@
+# Normalize line endings for script files
+gradlew text eol=lf
+*.bat text eol=crlf
+
+# Mark gradle-wrapper.jar and all other JAR files as binary so Git never modifies them
+*.jar binary
