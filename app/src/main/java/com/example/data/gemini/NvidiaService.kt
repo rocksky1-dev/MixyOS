@@ -53,6 +53,49 @@ object NvidiaService {
     }
 
     /**
+     * Parses the custom structured LLM action tag format into a typed MixyAction.
+     * Support format: [ACTION:FLASHLIGHT:state=ON] or [ACTION:LAUNCH_CAMERA] or [ACTION:SET_VOLUME:level=80]
+     */
+    fun parseLlmActionTag(tagContent: String): MixyAction? {
+        try {
+            val parts = tagContent.split(":")
+            if (parts.isEmpty()) return null
+            val actionType = parts[0].trim().uppercase()
+            
+            val params = mutableMapOf<String, String>()
+            if (parts.size > 1) {
+                val paramStr = parts.subList(1, parts.size).joinToString(":")
+                val pairs = paramStr.split(",")
+                for (pair in pairs) {
+                    val kv = pair.split("=")
+                    if (kv.size == 2) {
+                        params[kv[0].trim()] = kv[1].trim()
+                    } else if (kv.size == 1 && kv[0].isNotEmpty()) {
+                        params["value"] = kv[0].trim()
+                    }
+                }
+            }
+            
+            return MixyAction(
+                action = actionType,
+                state = params["state"] ?: params["value"],
+                appName = params["appName"] ?: params["value"],
+                phoneNumber = params["phoneNumber"] ?: params["value"],
+                contactName = params["contactName"],
+                message = params["message"],
+                time = params["time"] ?: params["value"],
+                seconds = params["seconds"]?.toIntOrNull() ?: params["value"]?.toIntOrNull(),
+                level = params["level"]?.toIntOrNull() ?: params["value"]?.toIntOrNull(),
+                query = params["query"] ?: params["value"],
+                settingType = params["settingType"] ?: params["value"]
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed parsing action tag: $tagContent", e)
+            return null
+        }
+    }
+
+    /**
      * Highly robust offline parser that translates natural commands into system actions.
      * Works instantly without API keys or active internet connections.
      */
@@ -61,32 +104,32 @@ object NvidiaService {
         
         return when {
             // 1. Flashlight Commands
-            clean.contains("flashlight on") || clean.contains("turn on flashlight") || clean.contains("torch on") || clean.contains("turn on torch") || clean.contains("enable torch") -> {
+            (clean.contains("flashlight") || clean.contains("torch")) && (clean.contains("on") || clean.contains("start") || clean.contains("enable") || clean.contains("activate") || clean.contains("chala") || clean.contains("jalao")) -> {
                 MixyAction(action = "FLASHLIGHT", state = "ON", reply = "Activating device flashlight lens.")
             }
-            clean.contains("flashlight off") || clean.contains("turn off flashlight") || clean.contains("torch off") || clean.contains("turn off torch") || clean.contains("disable torch") -> {
+            (clean.contains("flashlight") || clean.contains("torch")) && (clean.contains("off") || clean.contains("stop") || clean.contains("disable") || clean.contains("deactivate") || clean.contains("band")) -> {
                 MixyAction(action = "FLASHLIGHT", state = "OFF", reply = "Deactivating device flashlight lens.")
             }
             
             // 2. Camera Commands
-            clean.contains("camera") || clean.contains("take a picture") || clean.contains("take photo") || clean.contains("capture image") -> {
+            clean.contains("camera") || clean.contains("take a picture") || clean.contains("take photo") || clean.contains("capture image") || clean.contains("click photo") || clean.contains("photo khicho") -> {
                 MixyAction(action = "LAUNCH_CAMERA", reply = "Initializing camera sensor.")
             }
             
             // 3. Gallery Commands
-            clean.contains("gallery") || clean.contains("photos") || clean.contains("show photos") || clean.contains("show my photos") -> {
+            clean.contains("gallery") || clean.contains("photos") || clean.contains("show photos") || clean.contains("show my photos") || clean.contains("images") || clean.contains("album") -> {
                 MixyAction(action = "OPEN_GALLERY", reply = "Opening photo gallery directory.")
             }
             
             // 4. Volume Commands
-            clean.contains("volume") || clean.contains("mute") || clean.contains("silent") -> {
+            clean.contains("volume") || clean.contains("mute") || clean.contains("silent") || clean.contains("sound") -> {
                 val level = extractNumber(clean) ?: 50
                 val replyText = if (clean.contains("mute") || clean.contains("silent") || level == 0) "Muting media volume." else "Setting media volume levels to $level%."
                 MixyAction(action = "SET_VOLUME", level = if (clean.contains("mute") || clean.contains("silent")) 0 else level, reply = replyText)
             }
             
             // 5. Brightness Commands
-            clean.contains("brightness") || clean.contains("screen bright") || clean.contains("screen dim") -> {
+            clean.contains("brightness") || clean.contains("screen bright") || clean.contains("screen dim") || clean.contains("light") -> {
                 val level = extractNumber(clean) ?: 40
                 MixyAction(action = "SET_BRIGHTNESS", level = level, reply = "Configuring display brightness level to $level%.")
             }

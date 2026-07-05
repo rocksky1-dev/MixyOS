@@ -128,4 +128,13 @@ class SecurePreferences(context: Context) {
     fun getUserName(): String {
         return sharedPrefs.getString("operator_user_name", "Shivam") ?: "Shivam"
     }
+
+    fun saveSelectedVoice(voiceId: String) {
+        sharedPrefs.edit().putString("selected_kokoro_voice", voiceId).apply()
+        Log.d(TAG, "Selected Kokoro voice saved: $voiceId")
+    }
+
+    fun getSelectedVoice(): String {
+        return sharedPrefs.getString("selected_kokoro_voice", "am_adam") ?: "am_adam"
+    }
 }

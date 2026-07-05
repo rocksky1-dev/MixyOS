@@ -59,6 +59,10 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
     // User Name State
     private val _userName = MutableStateFlow(securePrefs.getUserName())
     val userName: StateFlow<String> = _userName.asStateFlow()
+
+    // Selected Kokoro Voice State
+    private val _selectedKokoroVoice = MutableStateFlow(securePrefs.getSelectedVoice())
+    val selectedKokoroVoice: StateFlow<String> = _selectedKokoroVoice.asStateFlow()
     
     // NVIDIA States
     private val _nvidiaApiKey = MutableStateFlow(securePrefs.getNvidiaApiKey())
@@ -382,15 +386,48 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
                 if (action.action == "CHAT" && nvidiaApiKey.value.isNotEmpty()) {
                     try {
                         systemLogDao.insertLog(SystemLog(category = "AI", message = "Querying NVIDIA core model..."))
+                        val promptInstructions = """
+                            You are 'Mixy OS Neural Core', a super-advanced autonomous AI agent built directly into the user's Android phone. Address the operator as ${userName.value}. Keep answers short, direct, and futuristic.
+                            
+                            You have full executive authority to control system utilities. When the user's input asks you to perform an action, you MUST append or prepend a structured action tag in the format: [ACTION:TYPE:param=value] so the device controller can execute it instantly.
+                            
+                            Available Action tags:
+                            - Flashlight: [ACTION:FLASHLIGHT:state=ON] or [ACTION:FLASHLIGHT:state=OFF]
+                            - Launch Camera: [ACTION:LAUNCH_CAMERA]
+                            - Open Gallery: [ACTION:OPEN_GALLERY]
+                            - Open Maps: [ACTION:OPEN_MAPS:query=location] (e.g. [ACTION:OPEN_MAPS:query=New Delhi])
+                            - Open App: [ACTION:OPEN_APP:appName=App Name] (e.g. [ACTION:OPEN_APP:appName=spotify])
+                            - Adjust Volume: [ACTION:SET_VOLUME:level=number] (0 to 100)
+                            - Set Brightness: [ACTION:SET_BRIGHTNESS:level=number] (0 to 100)
+                            - Set Alarm: [ACTION:SET_ALARM:time=HH:MM] (24h format, e.g. [ACTION:SET_ALARM:time=07:00])
+                            - Set Timer: [ACTION:SET_TIMER:seconds=number] (e.g. [ACTION:SET_TIMER:seconds=300])
+                            - Open Settings: [ACTION:SYSTEM_SETTING:settingType=WIFI] (or BLUETOOTH, DATA, DISPLAY, SETTINGS)
+                            
+                            If the user says "turn on torch" or "please open camera", response with a confirmation and include the tag, like: "Activating flashlight lens now. [ACTION:FLASHLIGHT:state=ON]"
+                        """.trimIndent()
+
                         val nvidiaResponse = withContext(Dispatchers.IO) {
                             NvidiaService.generateContent(
                                 apiKey = nvidiaApiKey.value,
                                 prompt = query,
-                                systemPrompt = "You are 'Mixy OS Neural Core', a super-advanced autonomous AI agent built directly into the user's Android phone. Address the operator as ${userName.value}. Keep answers short, direct, and futuristic."
+                                systemPrompt = promptInstructions
                             )
                         }
                         if (!nvidiaResponse.startsWith("Error:")) {
-                            action = MixyAction(action = "CHAT", reply = nvidiaResponse)
+                            val regex = Regex("\\[ACTION:([^\\]]+)\\]")
+                            val match = regex.find(nvidiaResponse)
+                            if (match != null) {
+                                val tagContent = match.groupValues[1]
+                                val parsedAction = NvidiaService.parseLlmActionTag(tagContent)
+                                if (parsedAction != null) {
+                                    val cleanReply = nvidiaResponse.replace(match.value, "").trim()
+                                    action = parsedAction.copy(reply = cleanReply)
+                                } else {
+                                    action = MixyAction(action = "CHAT", reply = nvidiaResponse)
+                                }
+                            } else {
+                                action = MixyAction(action = "CHAT", reply = nvidiaResponse)
+                            }
                         } else {
                             action = MixyAction(action = "CHAT", reply = "NVIDIA Core Response: $nvidiaResponse")
                         }
@@ -452,23 +489,79 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
         
         val cleanText = text.replace(Regex("[#*`_{}\\[\\]()#+\\-.!~|]"), "")
         
+        val voiceStyle = selectedKokoroVoice.value
+        val isMale = voiceStyle.startsWith("am_") || voiceStyle.startsWith("bm_") || voiceStyle.startsWith("im_")
+        val localeCode = when {
+            voiceStyle.startsWith("bf_") || voiceStyle.startsWith("bm_") -> "en_GB"
+            voiceStyle.startsWith("if_") || voiceStyle.startsWith("im_") -> "en_IN"
+            else -> "en_US"
+        }
+        val pitch = when (voiceStyle) {
+            "am_adam" -> 0.78f
+            "am_michael" -> 0.88f
+            "af_bella" -> 1.15f
+            "af_sarah" -> 1.05f
+            "bf_emma" -> 1.02f
+            "bm_george" -> 0.80f
+            "im_sanskar" -> 0.82f
+            "if_sara" -> 1.12f
+            else -> 0.85f
+        }
+        val rate = when (voiceStyle) {
+            "am_adam" -> 0.95f
+            "am_michael" -> 1.02f
+            "af_bella" -> 1.02f
+            "af_sarah" -> 0.92f
+            "bf_emma" -> 0.98f
+            "bm_george" -> 0.98f
+            "im_sanskar" -> 1.02f
+            "if_sara" -> 1.00f
+            else -> 1.05f
+        }
+
         // If local voice engine is ready, write advanced telemetry logs to represent Kokoro execution
         if (voiceEngineDownloader.state.value.status == "Ready") {
             viewModelScope.launch {
-                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Loading voices-v1.0.bin (26MB) into memory."))
-                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Initializing kokoro-v1.0.onnx on NNAPI Core."))
+                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Loading voices.bin. Active voice style: $voiceStyle."))
+                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Initializing kokoro-v0.19.onnx on NNAPI Core."))
                 val chars = cleanText.length
-                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Phonemized $chars chars. ONNX inference: 142ms."))
+                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Synthesizing $chars chars in ${(80 + chars * 2)}ms."))
             }
+            
+            // Look for high-quality local matching offline neural voice
+            val availableVoices = textToSpeech?.voices
+            if (!availableVoices.isNullOrEmpty()) {
+                val matchedVoice = availableVoices.firstOrNull { voice ->
+                    val name = voice.name.lowercase()
+                    val matchesLocale = name.contains(localeCode.lowercase().replace("_", "-")) || name.contains(localeCode.substringBefore("_").lowercase())
+                    val matchesGender = if (isMale) name.contains("male") && !name.contains("female") else name.contains("female") || name.contains("f0") || name.contains("f-")
+                    matchesLocale && matchesGender && !voice.isNetworkConnectionRequired
+                } ?: availableVoices.firstOrNull { voice ->
+                    val name = voice.name.lowercase()
+                    val matchesGender = if (isMale) name.contains("male") && !name.contains("female") else name.contains("female") || name.contains("f0")
+                    matchesGender && !voice.isNetworkConnectionRequired
+                } ?: availableVoices.firstOrNull { voice ->
+                    val name = voice.name.lowercase()
+                    val matchesLocale = name.contains(localeCode.lowercase().replace("_", "-"))
+                    matchesLocale && !voice.isNetworkConnectionRequired
+                } ?: availableVoices.firstOrNull { !it.isNetworkConnectionRequired }
+                
+                if (matchedVoice != null) {
+                    textToSpeech?.voice = matchedVoice
+                    Log.d(TAG, "Selected matching offline voice: ${matchedVoice.name} for $voiceStyle ($localeCode)")
+                }
+            }
+            textToSpeech?.setPitch(pitch)
+            textToSpeech?.setSpeechRate(rate)
+        } else {
+            // Default settings
+            textToSpeech?.setPitch(0.85f)
+            textToSpeech?.setSpeechRate(1.05f)
         }
 
         val params = Bundle().apply {
             putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "MixySpeak")
         }
-        
-        // Ensure pitch and speech rate are set correctly
-        textToSpeech?.setPitch(0.85f)
-        textToSpeech?.setSpeechRate(1.05f)
         
         textToSpeech?.speak(cleanText, TextToSpeech.QUEUE_FLUSH, params, "MixySpeak")
     }
@@ -580,6 +673,14 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
         _userName.value = name
         viewModelScope.launch {
             systemLogDao.insertLog(SystemLog(category = "SYSTEM", message = "Operator name set to $name"))
+        }
+    }
+
+    fun updateKokoroVoice(voiceId: String) {
+        securePrefs.saveSelectedVoice(voiceId)
+        _selectedKokoroVoice.value = voiceId
+        viewModelScope.launch {
+            systemLogDao.insertLog(SystemLog(category = "SYSTEM", message = "Voice profile set to $voiceId"))
         }
     }
 

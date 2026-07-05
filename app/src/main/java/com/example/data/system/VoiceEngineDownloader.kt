@@ -102,7 +102,7 @@ class VoiceEngineDownloader(private val context: Context) {
                 val onnxOk = onnxFile.exists() && onnxFile.length() >= expectedOnnxSize
                 if (!onnxOk) {
                     downloadFileInternal(
-                        urlStr = "https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx",
+                        urlStr = "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0.19.onnx",
                         destFile = onnxFile,
                         expectedSize = expectedOnnxSize,
                         fileName = "kokoro-v1.0.onnx"
@@ -115,7 +115,7 @@ class VoiceEngineDownloader(private val context: Context) {
                 val binOk = binFile.exists() && binFile.length() >= expectedBinSize
                 if (!binOk) {
                     downloadFileInternal(
-                        urlStr = "https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin",
+                        urlStr = "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/voices.bin",
                         destFile = binFile,
                         expectedSize = expectedBinSize,
                         fileName = "voices-v1.0.bin"

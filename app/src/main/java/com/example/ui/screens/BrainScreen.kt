@@ -729,18 +729,102 @@ fun LocalVoiceEngineDownloaderCard(viewModel: MixyViewModel) {
                     }
                 }
                 "Ready" -> {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    val selectedVoice by viewModel.selectedKokoroVoice.collectAsState()
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = CyberCyan, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Local Voice Synthesis Offline Engine Ready", color = CyberCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "ACTIVE KOKORO VOICE PROFILE",
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    androidx.compose.foundation.lazy.LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(listOf(
+                            Pair("am_adam", "Adam 🇺🇸 (Deep)"),
+                            Pair("am_michael", "Michael 🇺🇸 (Smooth)"),
+                            Pair("af_bella", "Bella 🇺🇸 (Crisp)"),
+                            Pair("af_sarah", "Sarah 🇺🇸 (Soft)"),
+                            Pair("bf_emma", "Emma 🇬🇧 (British)"),
+                            Pair("bm_george", "George 🇬🇧 (Classy)"),
+                            Pair("im_sanskar", "Sanskar 🇮🇳 (Clear)"),
+                            Pair("if_sara", "Sara 🇮🇳 (Sweet)")
+                        )) { (voiceId, label) ->
+                            val isSelected = selectedVoice == voiceId
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(
+                                        if (isSelected) CyberCyan.copy(alpha = 0.2f)
+                                        else Color.White.copy(alpha = 0.04f)
+                                    )
+                                    .border(
+                                        BorderStroke(
+                                            width = 1.dp,
+                                            color = if (isSelected) CyberCyan else Color.White.copy(alpha = 0.08f)
+                                        ),
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .clickable {
+                                        viewModel.updateKokoroVoice(voiceId)
+                                    }
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = CyberCyan,
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                    Text(
+                                        text = label,
+                                        color = if (isSelected) CyberCyan else Color.White,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
                         onClick = {
                             scope.launch {
                                 isSynthesizing = true
-                                viewModel.speakText("Cognitive synthesis core operational. How may I assist you?")
+                                val voiceIntro = when (selectedVoice) {
+                                    "am_adam" -> "Adam deep male voice synthesized. Ready to execute local device commands."
+                                    "am_michael" -> "Michael smooth male voice initialized. Fully agentic systems operational."
+                                    "af_bella" -> "Bella crisp female voice active. Offline voice synthesizer test success."
+                                    "af_sarah" -> "Sarah soft female voice profile loaded. Awaiting your instructions."
+                                    "bf_emma" -> "Emma British female profile configured. How can I help you today, operator?"
+                                    "bm_george" -> "George classy British male voice test complete. Local commands enabled."
+                                    "im_sanskar" -> "Sanskar Indian male voice profile live. Cognitive core processing."
+                                    "if_sara" -> "Sara sweet Indian voice active. Systems are fully green."
+                                    else -> "Voice synthesis complete. Ready for task execution."
+                                }
+                                viewModel.speakText(voiceIntro)
                                 delay(3500)
                                 isSynthesizing = false
                             }
