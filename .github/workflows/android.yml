@@ -24,15 +24,26 @@ jobs:
 
       - name: Decode or Generate Debug Keystore
         run: |
-          if [ -f debug.keystore.base64 ]; then
+          echo "Preparing debug keystore..."
+          # Remove any existing debug.keystore to avoid conflicts
+          rm -f debug.keystore app/debug.keystore
+          
+          if [ -s debug.keystore.base64 ]; then
             echo "Decoding debug keystore from base64..."
             base64 -d debug.keystore.base64 > debug.keystore
-          elif [ -f debug.keystore ]; then
-            echo "debug.keystore already exists."
-          else
-            echo "debug.keystore.base64 not found! Generating a standard Android debug keystore..."
+          fi
+          
+          if [ ! -s debug.keystore ]; then
+            echo "Generating a fresh, standard Android debug keystore..."
             keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
+          
+          # Copy to app directory in case build.gradle expects it there
+          cp debug.keystore app/debug.keystore || true
+          
+          echo "Verifying debug keystore file location and size:"
+          ls -la debug.keystore
+          ls -la app/debug.keystore || echo "app/debug.keystore not present"
 
       - name: Heal and Regenerate Gradle Wrapper
         run: |
