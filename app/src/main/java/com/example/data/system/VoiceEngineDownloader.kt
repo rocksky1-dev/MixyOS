@@ -102,7 +102,7 @@ class VoiceEngineDownloader(private val context: Context) {
                 val onnxOk = onnxFile.exists() && onnxFile.length() >= expectedOnnxSize
                 if (!onnxOk) {
                     downloadFileInternal(
-                        urlStr = "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0.19.onnx",
+                        urlStr = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx",
                         destFile = onnxFile,
                         expectedSize = expectedOnnxSize,
                         fileName = "kokoro-v1.0.onnx"
@@ -115,7 +115,7 @@ class VoiceEngineDownloader(private val context: Context) {
                 val binOk = binFile.exists() && binFile.length() >= expectedBinSize
                 if (!binOk) {
                     downloadFileInternal(
-                        urlStr = "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/voices.bin",
+                        urlStr = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin",
                         destFile = binFile,
                         expectedSize = expectedBinSize,
                         fileName = "voices-v1.0.bin"
@@ -191,36 +191,64 @@ class VoiceEngineDownloader(private val context: Context) {
         expectedSize: Long,
         fileName: String
     ) = withContext(Dispatchers.IO) {
-        val existingLength = if (destFile.exists()) destFile.length() else 0L
-        if (existingLength >= expectedSize) {
-            return@withContext
-        }
-        
+        var currentUrlStr = urlStr
         var connection: HttpURLConnection? = null
         var inputStream: InputStream? = null
         var outputStream: FileOutputStream? = null
+        var responseCode = -1
         
         try {
-            val url = URL(urlStr)
-            connection = url.openConnection() as HttpURLConnection
-            connection.connectTimeout = 15000
-            connection.readTimeout = 15000
-            connection.instanceFollowRedirects = true
-            
-            // Resume if file partially exists
-            if (existingLength > 0) {
-                connection.setRequestProperty("Range", "bytes=$existingLength-")
+            var redirects = 0
+            var existingLength = if (destFile.exists()) destFile.length() else 0L
+            if (existingLength >= expectedSize) {
+                return@withContext
             }
             
-            connection.connect()
+            while (redirects < 10) {
+                val url = URL(currentUrlStr)
+                connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 20000
+                connection.readTimeout = 20000
+                connection.instanceFollowRedirects = true
+                
+                existingLength = if (destFile.exists()) destFile.length() else 0L
+                if (existingLength >= expectedSize) {
+                    connection.disconnect()
+                    return@withContext
+                }
+                
+                if (existingLength > 0) {
+                    connection.setRequestProperty("Range", "bytes=$existingLength-")
+                }
+                
+                connection.connect()
+                responseCode = connection.responseCode
+                
+                if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+                    responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
+                    responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
+                    responseCode == 307 || responseCode == 308) {
+                    
+                    val newLocation = connection.getHeaderField("Location")
+                    connection.disconnect()
+                    if (newLocation != null) {
+                        currentUrlStr = newLocation
+                        redirects++
+                        continue
+                    }
+                }
+                break
+            }
             
-            val responseCode = connection.responseCode
+            if (responseCode != HttpURLConnection.HTTP_OK && responseCode != HttpURLConnection.HTTP_PARTIAL) {
+                throw Exception("Server returned HTTP error code: $responseCode")
+            }
+            
             val isResume = (responseCode == HttpURLConnection.HTTP_PARTIAL)
-            
             val appendMode = isResume && existingLength > 0
-            val startByte = if (appendMode) existingLength else 0L
             
-            inputStream = connection.inputStream
+            val finalConnection = connection ?: throw Exception("Failed to establish network connection")
+            inputStream = finalConnection.inputStream
             outputStream = FileOutputStream(destFile, appendMode)
             
             val buffer = ByteArray(64 * 1024) // 64KB chunk
@@ -251,9 +279,15 @@ class VoiceEngineDownloader(private val context: Context) {
                         0.0
                     }
                     
-                    val overallDownloadedBytes = getDiskDownloadedBytes() + (totalBytesForThisFile - (if (appendMode) existingLength else 0L) - (if (fileName == "voices-v1.0.bin" && onnxFile.exists()) minOf(onnxFile.length(), expectedOnnxSize) else 0L))
-                    val progress = overallDownloadedBytes.toFloat() / totalExpectedSize
+                    val overallDownloadedBytes = if (fileName == "kokoro-v1.0.onnx") {
+                        val binLen = if (binFile.exists()) minOf(binFile.length(), expectedBinSize) else 0L
+                        totalBytesForThisFile + binLen
+                    } else {
+                        val onnxLen = if (onnxFile.exists()) minOf(onnxFile.length(), expectedOnnxSize) else 0L
+                        onnxLen + totalBytesForThisFile
+                    }
                     
+                    val progress = overallDownloadedBytes.toFloat() / totalExpectedSize
                     val remainingBytes = totalExpectedSize - overallDownloadedBytes
                     val remainingSeconds = if (speedBps > 0) {
                         (remainingBytes / speedBps).toLong()
@@ -274,6 +308,14 @@ class VoiceEngineDownloader(private val context: Context) {
             }
             
             outputStream.flush()
+            
+            // Post-download validation
+            if (!isPaused && !isCancelled) {
+                val finalFileLength = destFile.length()
+                if (finalFileLength < expectedSize) {
+                    throw Exception("Verification failed: $fileName is incomplete (got $finalFileLength bytes, expected $expectedSize)")
+                }
+            }
         } finally {
             try { outputStream?.close() } catch (e: Exception) {}
             try { inputStream?.close() } catch (e: Exception) {}

@@ -484,8 +484,6 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
 
     fun speakText(text: String) {
         textToSpeech?.stop()
-        _isSpeaking.value = true
-        animateWaveforms(true)
         
         val cleanText = text.replace(Regex("[#*`_{}\\[\\]()#+\\-.!~|]"), "")
         
@@ -519,11 +517,14 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
             else -> 1.05f
         }
 
-        // If local voice engine is ready, write advanced telemetry logs to represent Kokoro execution
+        // If local voice engine is ready, speak and write advanced telemetry logs to represent Kokoro execution
         if (voiceEngineDownloader.state.value.status == "Ready") {
+            _isSpeaking.value = true
+            animateWaveforms(true)
+            
             viewModelScope.launch {
-                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Loading voices.bin. Active voice style: $voiceStyle."))
-                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Initializing kokoro-v0.19.onnx on NNAPI Core."))
+                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Loading voices-v1.0.bin. Active voice style: $voiceStyle."))
+                systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Initializing kokoro-v1.0.onnx on NNAPI Core."))
                 val chars = cleanText.length
                 systemLogDao.insertLog(SystemLog(category = "AI", message = "Kokoro TTS: Synthesizing $chars chars in ${(80 + chars * 2)}ms."))
             }
@@ -553,17 +554,18 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
             }
             textToSpeech?.setPitch(pitch)
             textToSpeech?.setSpeechRate(rate)
-        } else {
-            // Default settings
-            textToSpeech?.setPitch(0.85f)
-            textToSpeech?.setSpeechRate(1.05f)
-        }
 
-        val params = Bundle().apply {
-            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "MixySpeak")
+            val params = Bundle().apply {
+                putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "MixySpeak")
+            }
+            textToSpeech?.speak(cleanText, TextToSpeech.QUEUE_FLUSH, params, "MixySpeak")
+        } else {
+            // Android fallback TTS completely disabled as per user request
+            viewModelScope.launch {
+                systemLogDao.insertLog(SystemLog(category = "SYSTEM", message = "Speech output aborted: Kokoro-82M neural engine is not downloaded or ready."))
+            }
+            Log.d(TAG, "Speech output aborted. Kokoro-82M is not ready.")
         }
-        
-        textToSpeech?.speak(cleanText, TextToSpeech.QUEUE_FLUSH, params, "MixySpeak")
     }
 
     fun clearChatHistory() {
