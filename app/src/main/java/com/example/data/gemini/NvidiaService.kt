@@ -34,6 +34,8 @@ object NvidiaService {
         apiKey: String,
         prompt: String,
         bitmaps: List<Bitmap> = emptyList(),
+        history: List<com.example.ui.viewmodel.LlmMessage> = emptyList(),
+        systemPrompt: String = "",
         modelName: String = "google/diffusiongemma-26b-a4b-it"
     ): String = withContext(Dispatchers.IO) {
         if (apiKey.isEmpty()) {
@@ -48,6 +50,26 @@ object NvidiaService {
             root.put("max_tokens", 1024)
 
             val messages = JSONArray()
+
+            // 1. Add System Instruction Prompt
+            if (systemPrompt.isNotEmpty()) {
+                val systemMsg = JSONObject()
+                systemMsg.put("role", "system")
+                systemMsg.put("content", systemPrompt)
+                messages.put(systemMsg)
+            }
+
+            // 2. Add Chat History
+            for (msg in history) {
+                val histMsg = JSONObject()
+                histMsg.put("role", if (msg.isUser) "user" else "assistant")
+                // Stripping system action responses for cleaner history
+                val cleanedText = msg.text
+                histMsg.put("content", cleanedText)
+                messages.put(histMsg)
+            }
+
+            // 3. Add Current Message
             val userMsg = JSONObject()
             userMsg.put("role", "user")
 

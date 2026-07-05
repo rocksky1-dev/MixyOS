@@ -60,9 +60,9 @@ fun AssistantScreen(
     val speechText by viewModel.speechText.collectAsState()
     val waveLevels by viewModel.voiceWaveLevels.collectAsState()
     val highThinking by viewModel.highThinkingMode.collectAsState()
+    val userName by viewModel.userName.collectAsState()
 
     var textInput by remember { mutableStateFlowOf("") }
-    var userName by remember { mutableStateOf("Shivam") }
     var showNameDialog by remember { mutableStateOf(false) }
 
     // Dynamic greeting based on current local hours
@@ -476,7 +476,7 @@ fun AssistantScreen(
                 TextButton(
                     onClick = {
                         if (tempName.trim().isNotEmpty()) {
-                            userName = tempName.trim()
+                            viewModel.saveUserName(tempName.trim())
                         }
                         showNameDialog = false
                     }

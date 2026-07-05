@@ -391,9 +391,194 @@ fun NeuralCoreTab(viewModel: MixyViewModel) {
         item {
             // Local Voice Downloader Card
             LocalVoiceEngineDownloaderCard(viewModel = viewModel)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        item {
+            AgentPermissionsCenterCard()
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
+
+@Composable
+fun AgentPermissionsCenterCard() {
+    val context = LocalContext.current
+    val listPermissions = listOf(
+        android.Manifest.permission.CAMERA,
+        android.Manifest.permission.RECORD_AUDIO,
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.READ_CONTACTS,
+        android.Manifest.permission.CALL_PHONE,
+        android.Manifest.permission.SEND_SMS,
+        android.Manifest.permission.READ_CALENDAR
+    )
+
+    var permissionsState by remember {
+        mutableStateOf(
+            listPermissions.associateWith { hasPermission(context, it) }
+        )
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        permissionsState = results
+    }
+
+    GlassCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("agent_permissions_card"),
+        cornerRadius = 20.dp,
+        borderColor = CyberCyan.copy(alpha = 0.3f),
+        backgroundColor = Color(0x1F050914)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Security,
+                    contentDescription = null,
+                    tint = CyberCyan,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Neural OS Agent Permission Center",
+                    color = Color.White,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "Grant these high-level permissions to authorize the autonomous agent loop to dial contacts, track your locale context, trigger alarms, record logs, and control device features natively.",
+                color = Color.Gray,
+                fontSize = 11.sp,
+                lineHeight = 15.sp
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+
+            PermissionIndicatorRow(
+                label = "Camera Access",
+                isGranted = permissionsState[android.Manifest.permission.CAMERA] ?: false,
+                icon = Icons.Default.CameraAlt
+            )
+            PermissionIndicatorRow(
+                label = "Microphone Access",
+                isGranted = permissionsState[android.Manifest.permission.RECORD_AUDIO] ?: false,
+                icon = Icons.Default.Mic
+            )
+            PermissionIndicatorRow(
+                label = "Location Core Services",
+                isGranted = permissionsState[android.Manifest.permission.ACCESS_FINE_LOCATION] ?: false,
+                icon = Icons.Default.LocationOn
+            )
+            PermissionIndicatorRow(
+                label = "Contact Database Connection",
+                isGranted = permissionsState[android.Manifest.permission.READ_CONTACTS] ?: false,
+                icon = Icons.Default.Contacts
+            )
+            PermissionIndicatorRow(
+                label = "Direct Call dialer",
+                isGranted = permissionsState[android.Manifest.permission.CALL_PHONE] ?: false,
+                icon = Icons.Default.Phone
+            )
+            PermissionIndicatorRow(
+                label = "SMS Transmission Core",
+                isGranted = permissionsState[android.Manifest.permission.SEND_SMS] ?: false,
+                icon = Icons.Default.Sms
+            )
+            PermissionIndicatorRow(
+                label = "Calendar Planner Integration",
+                isGranted = permissionsState[android.Manifest.permission.READ_CALENDAR] ?: false,
+                icon = Icons.Default.CalendarMonth
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Button(
+                onClick = {
+                    launcher.launch(listPermissions.toTypedArray())
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = CyberCyan),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .testTag("grant_all_permissions_btn")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Security,
+                    contentDescription = null,
+                    tint = SpaceDark,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "GRANT ALL AGENT POWERS",
+                    color = SpaceDark,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    letterSpacing = 0.5.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PermissionIndicatorRow(label: String, isGranted: Boolean, icon: ImageVector) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (isGranted) CyberCyan else Color.Gray,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = label,
+            color = Color.White.copy(alpha = 0.9f),
+            fontSize = 12.sp,
+            modifier = Modifier.weight(1f)
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(if (isGranted) CyberCyan else CyberPink)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = if (isGranted) "GRANTED" else "DENIED",
+                color = if (isGranted) CyberCyan else CyberPink,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+fun hasPermission(context: Context, permission: String): Boolean {
+    return androidx.core.content.ContextCompat.checkSelfPermission(
+        context,
+        permission
+    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 }
 
 @Composable

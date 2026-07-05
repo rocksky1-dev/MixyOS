@@ -64,7 +64,7 @@ fun MainAppShell() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                    .padding(horizontal = 40.dp, vertical = 10.dp) // narrower width for 2 items
             ) {
                 GlassCard(
                     modifier = Modifier
@@ -87,39 +87,11 @@ fun MainAppShell() {
                             tag = "nav_tab_assistant"
                         )
                         TabNavItem(
-                            icon = Icons.Default.Dashboard,
-                            label = "Dashboard",
+                            icon = Icons.Default.Psychology,
+                            label = "LLM Core",
                             selected = currentTab == 1,
                             onClick = { currentTab = 1 },
-                            tag = "nav_tab_dashboard"
-                        )
-                        TabNavItem(
-                            icon = Icons.Default.AutoMode,
-                            label = "Automate",
-                            selected = currentTab == 2,
-                            onClick = { currentTab = 2 },
-                            tag = "nav_tab_automate"
-                        )
-                        TabNavItem(
-                            icon = Icons.Default.Folder,
-                            label = "Files",
-                            selected = currentTab == 3,
-                            onClick = { currentTab = 3 },
-                            tag = "nav_tab_files"
-                        )
-                        TabNavItem(
-                            icon = Icons.Default.Psychology,
-                            label = "LLM",
-                            selected = currentTab == 4,
-                            onClick = { currentTab = 4 },
                             tag = "nav_tab_llm"
-                        )
-                        TabNavItem(
-                            icon = Icons.Default.Terminal,
-                            label = "Console",
-                            selected = currentTab == 5,
-                            onClick = { currentTab = 5 },
-                            tag = "nav_tab_console"
                         )
                     }
                 }
@@ -142,21 +114,9 @@ fun MainAppShell() {
                 when (targetTab) {
                     0 -> AssistantScreen(
                         viewModel = viewModel,
-                        onOpenSettings = { currentTab = 5 }
+                        onOpenSettings = { currentTab = 1 }
                     )
-                    1 -> DashboardScreen(
-                        viewModel = viewModel
-                    )
-                    2 -> AutomationScreen(
-                        viewModel = viewModel
-                    )
-                    3 -> FileManagerScreen(
-                        viewModel = viewModel
-                    )
-                    4 -> BrainScreen(
-                        viewModel = viewModel
-                    )
-                    5 -> OSConsoleScreen(
+                    1 -> BrainScreen(
                         viewModel = viewModel
                     )
                 }

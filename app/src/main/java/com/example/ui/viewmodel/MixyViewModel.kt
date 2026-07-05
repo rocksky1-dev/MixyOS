@@ -57,6 +57,10 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
     // Secure Storage for Nvidia API Key
     private val securePrefs = SecurePreferences(application)
     
+    // User Name State
+    private val _userName = MutableStateFlow(securePrefs.getUserName())
+    val userName: StateFlow<String> = _userName.asStateFlow()
+    
     // NVIDIA States
     private val _nvidiaApiKey = MutableStateFlow(securePrefs.getNvidiaApiKey())
     val nvidiaApiKey: StateFlow<String> = _nvidiaApiKey.asStateFlow()
@@ -520,6 +524,14 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
     }
 
     // --- NVIDIA KEY MANAGEMENT & TESTING ---
+    fun saveUserName(name: String) {
+        securePrefs.saveUserName(name)
+        _userName.value = name
+        viewModelScope.launch {
+            systemLogDao.insertLog(SystemLog(category = "SYSTEM", message = "Operator name set to $name"))
+        }
+    }
+
     fun saveNvidiaApiKey(key: String) {
         securePrefs.saveNvidiaApiKey(key)
         _nvidiaApiKey.value = key
@@ -558,8 +570,14 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
     fun executePendingLlmAction(messageId: String, action: MixyAction) {
         viewModelScope.launch {
             try {
-                val executionSummary = withContext(Dispatchers.Main) {
-                    systemManager.executeAction(action)
+                val executionSummary = if (action.action == "CHANGE_NAME") {
+                    val newName = action.contactName ?: "Shivam"
+                    saveUserName(newName)
+                    "Operator profile renamed to $newName."
+                } else {
+                    withContext(Dispatchers.Main) {
+                        systemManager.executeAction(action)
+                    }
                 }
                 systemLogDao.insertLog(SystemLog(category = "SYSTEM", message = "NVIDIA Action Executed: ${action.action}"))
                 
@@ -624,6 +642,7 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
             fileNames = fileNames,
             imageBitmaps = imageBitmaps
         )
+        val historyList = _llmMessages.value.takeLast(10)
         _llmMessages.value = _llmMessages.value + userMsg
 
         _llmIsTyping.value = true
@@ -632,11 +651,47 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
             try {
                 systemLogDao.insertLog(SystemLog(category = "AI", message = "Sending prompt to google/diffusiongemma-26b-a4b-it"))
                 
+                val operatorName = _userName.value
+                val batteryPct = _batteryLevel.value
+                val currentTimeString = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date())
+                
+                val systemPrompt = """
+                    You are "Mixy OS Neural Core", a super-advanced autonomous AI agent built directly into the user's Android phone.
+                    
+                    OPERATOR DETAILS:
+                    - Operator Name: $operatorName
+                    - Current Battery: $batteryPct%
+                    - Current Local Time: $currentTimeString
+                    
+                    IMPORTANT RESPONSIBILITIES:
+                    1. You MUST always remember the Operator's name ($operatorName) and address them politely as $operatorName or Operator $operatorName.
+                    2. If they ask you to change or update their name, acknowledge it and say something like: "I will update your name in my memory database." The system will handle the actual update.
+                    3. You have powerful system-agent integration. You can control the user's phone directly through the background action pipeline!
+                    
+                    ACTION EXTRACTION PROTOCOL:
+                    If the operator asks you to perform an action, you should explicitly include the natural action keywords in your final sentence so that the parser can pick it up.
+                    For example:
+                    - To turn on the flashlight: Include the exact phrase "I will turn on flashlight now."
+                    - To turn off the flashlight: Include the exact phrase "I will turn off flashlight now."
+                    - To open settings: Include "I will open settings now."
+                    - To open WiFi: Include "I will open wifi settings now."
+                    - To open Bluetooth: Include "I will open bluetooth settings now."
+                    - To launch the camera: Include "I will launch camera now."
+                    - To open the gallery: Include "I will open gallery now."
+                    - To open map / locate something: Include "I will open map to locate [Query]."
+                    - To make a phone call: Include "I will call [ContactName]."
+                    - To launch a popular app: Include "I will launch app [AppName]." (Choose from YouTube, Spotify, Instagram, Facebook, WhatsApp, Chrome, Maps, Gallery, Camera, Settings).
+                    
+                    Keep your responses concise, highly intelligent, engaging, and professional. Always prioritize autonomous agent actions when requested.
+                """.trimIndent()
+
                 val apiKey = nvidiaApiKey.value
                 val rawResponse = NvidiaService.generateContent(
                     apiKey = apiKey,
                     prompt = finalPrompt,
-                    bitmaps = imageBitmaps
+                    bitmaps = imageBitmaps,
+                    history = historyList,
+                    systemPrompt = systemPrompt
                 )
 
                 val detectedAction = extractActionFromText(rawResponse)
@@ -720,6 +775,20 @@ class MixyViewModel(application: Application) : AndroidViewModel(application), T
             lower.contains("call ") -> {
                 val contactName = text.substringAfter("call ", "").trim().split(" ", "\n", ".").firstOrNull() ?: "contact"
                 MixyAction(action = "MAKE_CALL", contactName = contactName, reply = "Initiating call to $contactName.")
+            }
+            lower.contains("update your name in my memory database to") || lower.contains("change my name to") || lower.contains("remember my name as") -> {
+                val after = when {
+                    lower.contains("update your name in my memory database to") -> text.substringAfter("update your name in my memory database to")
+                    lower.contains("change my name to") -> text.substringAfter("change my name to")
+                    lower.contains("remember my name as") -> text.substringAfter("remember my name as")
+                    else -> ""
+                }
+                val newName = after.trim().split(" ", "\n", ".").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: ""
+                if (newName.isNotEmpty()) {
+                    MixyAction(action = "CHANGE_NAME", contactName = newName, reply = "Updating your name to $newName.")
+                } else {
+                    null
+                }
             }
             else -> null
         }

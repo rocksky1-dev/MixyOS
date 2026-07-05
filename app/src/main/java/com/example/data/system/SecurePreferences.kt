@@ -119,4 +119,13 @@ class SecurePreferences(context: Context) {
         sharedPrefs.edit().remove("nvidia_api_key").apply()
         Log.d(TAG, "Nvidia API Key removed.")
     }
+
+    fun saveUserName(name: String) {
+        sharedPrefs.edit().putString("operator_user_name", name).apply()
+        Log.d(TAG, "User name saved: $name")
+    }
+
+    fun getUserName(): String {
+        return sharedPrefs.getString("operator_user_name", "Shivam") ?: "Shivam"
+    }
 }
